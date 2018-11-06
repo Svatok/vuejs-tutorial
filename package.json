@@ -11,8 +11,17 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "apollo-boost": "^0.1.20",
+    "apollo-link": "^1.2.3",
+    "bootstrap-sass": "^3.3.7",
+    "bootstrap-vue": "^2.0.0-rc.11",
+    "graphql": "^14.0.2",
+    "node-sass": "^4.10.0",
+    "sass-loader": "^7.1.0",
     "vue": "^2.5.2",
-    "vue-router": "^3.0.1"
+    "vue-apollo": "^3.0.0-beta.25",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
