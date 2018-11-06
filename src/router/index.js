@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
+import ProjectList from '@/components/ProjectList'
 import SignUp from '@/components/SignUp'
 import LogIn from '@/components/LogIn'
 
@@ -28,8 +28,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld,
+      name: 'ProjectList',
+      component: ProjectList,
       beforeEnter: ifAuthenticated
     },
     {

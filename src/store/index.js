@@ -4,7 +4,11 @@ import apolloClient from '@/utils/apolloClient'
 
 import {
   LOGIN_MUTATION,
-  SIGNUP_MUTATION
+  SIGNUP_MUTATION,
+  MY_PROJECTS_QUERY,
+  CREATE_PROJECT_MUTATION,
+  UPDATE_PROJECT_MUTATION,
+  DELETE_PROJECT_MUTATION
 } from '@/graphql'
 
 Vue.use(Vuex)
@@ -38,6 +42,26 @@ export const mutations = {
       messages: messages,
       alertType: 'success'
     }
+  },
+  setProjects (state, projects) {
+    state.projects = projects
+  },
+  createProject (state, project) {
+    state.projects = [
+      ...state.projects,
+      project
+    ]
+  },
+  updateProject (state, project) {
+    state.projects = [
+      ...state.projects.filter(element => element.id !== project.id),
+      project
+    ]
+  },
+  deleteProject (state, id) {
+    state.projects = [
+      ...state.projects.filter(element => element.id !== id)
+    ]
   }
 }
 
@@ -83,11 +107,78 @@ export const actions = {
       .catch(response => {
         commit('addGraphQlError', response.graphQLErrors)
       })
+  },
+  async fetchProjects ({ commit }) {
+    await apolloClient
+      .query({
+        query: MY_PROJECTS_QUERY
+      })
+      .then(response => {
+        commit('setProjects', response.data.me.projects)
+      })
+      .catch(response => {
+        commit('addGraphQlError', response.graphQLErrors)
+      })
+  },
+  async createProject ({ commit }, { title }) {
+    await apolloClient
+      .mutate({
+        mutation: CREATE_PROJECT_MUTATION,
+        variables: {
+          title: title
+        }
+      })
+      .then(response => {
+        if (response.data.createProject.errors.length === 0) {
+          commit('createProject', response.data.createProject.project)
+        } else {
+          commit('addError', response.data.createProject.errors)
+        }
+      })
+      .catch(response => {
+        commit('addGraphQlError', response.graphQLErrors)
+      })
+  },
+  async updateProject ({ commit }, { id, title }) {
+    await apolloClient
+      .mutate({
+        mutation: UPDATE_PROJECT_MUTATION,
+        variables: {
+          id: id,
+          title: title
+        }
+      })
+      .then(response => {
+        if (response.data.updateProject.errors.length === 0) {
+          commit('updateProject', response.data.updateProject.project)
+        } else {
+          commit('addError', response.data.updateProject.errors)
+        }
+      })
+      .catch(response => {
+        commit('addGraphQlError', response.graphQLErrors)
+      })
+  },
+  async deleteProject ({ commit }, { id }) {
+    await apolloClient
+      .mutate({
+        mutation: DELETE_PROJECT_MUTATION,
+        variables: {
+          id: id
+        }
+      })
+      .then(() => {
+        commit('deleteProject', id)
+      })
+      .catch(response => {
+        commit('addGraphQlError', response.graphQLErrors)
+      })
   }
 }
 
 export const state = {
-  alert: null
+  alert: null,
+  projects: []
 }
 
 export default new Vuex.Store({
