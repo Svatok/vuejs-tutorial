@@ -109,3 +109,57 @@ export const DELETE_PROJECT_MUTATION = gql`
     }
   }
 `
+
+export const CREATE_TASK_MUTATION = gql`
+  mutation($projectId: ID!, $name: String!) {
+    createTask(input: {
+      projectId: $projectId,
+      name: $name
+    }) {
+      task {
+        id
+        name
+        done
+        projectId
+      },
+      errors {
+        messages,
+        path
+      }
+    }
+  }
+`
+
+export const UPDATE_TASK_MUTATION = gql`
+  mutation($id: ID!, $name: String, $done: Boolean) {
+    updateTask(input: {
+      id: $id,
+      name: $name,
+      done: $done
+    }) {
+      task {
+        id
+        name
+        done
+        projectId
+      },
+      errors {
+        messages,
+        path
+      }
+    }
+  }
+`
+
+export const DELETE_TASK_MUTATION = gql`
+  mutation($id: ID!) {
+    destroyTask(input: {
+      id: $id
+    }) {
+      errors {
+        messages,
+        path
+      }
+    }
+  }
+`

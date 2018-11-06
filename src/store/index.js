@@ -8,7 +8,10 @@ import {
   MY_PROJECTS_QUERY,
   CREATE_PROJECT_MUTATION,
   UPDATE_PROJECT_MUTATION,
-  DELETE_PROJECT_MUTATION
+  DELETE_PROJECT_MUTATION,
+  CREATE_TASK_MUTATION,
+  UPDATE_TASK_MUTATION,
+  DELETE_TASK_MUTATION
 } from '@/graphql'
 
 Vue.use(Vuex)
@@ -61,6 +64,26 @@ export const mutations = {
   deleteProject (state, id) {
     state.projects = [
       ...state.projects.filter(element => element.id !== id)
+    ]
+  },
+  createTask (state, task) {
+    const project = state.projects.find(element => element.id === String(task.projectId))
+    project.tasks = [
+      ...project.tasks,
+      task
+    ]
+  },
+  updateTask (state, task) {
+    const project = state.projects.find(element => element.id === String(task.projectId))
+    project.tasks = [
+      ...project.tasks.filter(element => element.id !== task.id),
+      task
+    ]
+  },
+  deleteTask (state, task) {
+    const project = state.projects.find(element => element.id === String(task.projectId))
+    project.tasks = [
+      ...project.tasks.filter(element => element.id !== task.id)
     ]
   }
 }
@@ -169,6 +192,60 @@ export const actions = {
       })
       .then(() => {
         commit('deleteProject', id)
+      })
+      .catch(response => {
+        commit('addGraphQlError', response.graphQLErrors)
+      })
+  },
+  async createTask ({ commit }, { projectId, name }) {
+    await apolloClient
+      .mutate({
+        mutation: CREATE_TASK_MUTATION,
+        variables: {
+          projectId: parseInt(projectId),
+          name: name
+        }
+      })
+      .then(response => {
+        if (response.data.createTask.errors.length === 0) {
+          commit('createTask', response.data.createTask.task)
+        } else {
+          commit('addError', response.data.createTask.errors)
+        }
+      })
+      .catch(response => {
+        commit('addGraphQlError', response.graphQLErrors)
+      })
+  },
+  async updateTask ({ commit }, task) {
+    await apolloClient
+      .mutate({
+        mutation: UPDATE_TASK_MUTATION,
+        variables: {
+          ...task
+        }
+      })
+      .then(response => {
+        if (response.data.updateTask.errors.length === 0) {
+          commit('updateTask', response.data.updateTask.task)
+        } else {
+          commit('addError', response.data.updateTask.errors)
+        }
+      })
+      .catch(response => {
+        commit('addGraphQlError', response.graphQLErrors)
+      })
+  },
+  async deleteTask ({ commit }, task) {
+    await apolloClient
+      .mutate({
+        mutation: DELETE_TASK_MUTATION,
+        variables: {
+          id: task.id
+        }
+      })
+      .then(() => {
+        commit('deleteTask', task)
       })
       .catch(response => {
         commit('addGraphQlError', response.graphQLErrors)

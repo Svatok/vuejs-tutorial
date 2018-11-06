@@ -25,14 +25,20 @@
         </div>
       </div>
       <div class="project-info__body">
+        <TaskList v-bind:tasks="this.project.tasks" v-bind:projectId="this.project.id" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import TaskList from './TaskList'
+
 export default {
   props: ['project'],
+  components: {
+    TaskList
+  },
   data () {
     return {
       isEditing: false,
