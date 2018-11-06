@@ -18,6 +18,7 @@
       <div class="in-green-500 font-10">{{ task.deadline }}</div>
     </label>
     <div class="no-shrink pt-5" v-if="!isEditing">
+      <CommentsModal v-bind:comments="task.comments" v-bind:task="task" />
       <span class="align-middle d-inline-block mb-5" v-on:click="showForm">Edit</span>
       <span class="align-middle d-inline-block mb-5" v-on:click="deleteTask">Delete</span>
     </div>
@@ -25,8 +26,13 @@
 </template>
 
 <script>
+import CommentsModal from './comments/CommentsModal'
+
 export default {
   props: ['task'],
+  components: {
+    CommentsModal
+  },
   data () {
     return {
       isEditing: false,

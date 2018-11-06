@@ -163,3 +163,37 @@ export const DELETE_TASK_MUTATION = gql`
     }
   }
 `
+
+export const CREATE_COMMENT_MUTATION = gql`
+  mutation($taskId: ID!, $body: String!, $attachment: Upload) {
+    createComment(input: {
+      body: $body,
+      taskId: $taskId,
+      attachment: $attachment
+    }) {
+      comment {
+        id
+        body
+        attachmentUrl
+        taskId
+      },
+      errors {
+        messages,
+        path
+      }
+    }
+  }
+`
+
+export const DELETE_COMMENT_MUTATION = gql`
+  mutation($id: ID!) {
+    destroyComment(input: {
+      id: $id
+    }) {
+      errors {
+        messages,
+        path
+      }
+    }
+  }
+`

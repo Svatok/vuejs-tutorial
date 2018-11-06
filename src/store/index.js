@@ -11,7 +11,9 @@ import {
   DELETE_PROJECT_MUTATION,
   CREATE_TASK_MUTATION,
   UPDATE_TASK_MUTATION,
-  DELETE_TASK_MUTATION
+  DELETE_TASK_MUTATION,
+  CREATE_COMMENT_MUTATION,
+  DELETE_COMMENT_MUTATION
 } from '@/graphql'
 
 Vue.use(Vuex)
@@ -84,6 +86,21 @@ export const mutations = {
     const project = state.projects.find(element => element.id === String(task.projectId))
     project.tasks = [
       ...project.tasks.filter(element => element.id !== task.id)
+    ]
+  },
+  createComment (state, { comment, task }) {
+    const project = state.projects.find(element => element.id === String(task.projectId))
+    const taskInState = project.tasks.find(element => element.id === String(task.id))
+    taskInState.comments = [
+      ...taskInState.comments,
+      comment
+    ]
+  },
+  deleteComment (state, { comment, task }) {
+    const project = state.projects.find(element => element.id === String(task.projectId))
+    const taskInState = project.tasks.find(element => element.id === String(task.id))
+    taskInState.comments = [
+      ...taskInState.comments.filter(element => element.id !== comment.id)
     ]
   }
 }
@@ -246,6 +263,45 @@ export const actions = {
       })
       .then(() => {
         commit('deleteTask', task)
+      })
+      .catch(response => {
+        commit('addGraphQlError', response.graphQLErrors)
+      })
+  },
+  async createComment ({ commit }, { task, body, attachment }) {
+    await apolloClient
+      .mutate({
+        mutation: CREATE_COMMENT_MUTATION,
+        variables: {
+          taskId: parseInt(task.id),
+          body: body,
+          attachment: attachment
+        }
+      })
+      .then(response => {
+        if (response.data.createComment.errors.length === 0) {
+          commit('createComment', {
+            comment: response.data.createComment.comment,
+            task: task
+          })
+        } else {
+          commit('addError', response.data.createComment.errors)
+        }
+      })
+      .catch(response => {
+        commit('addGraphQlError', response.graphQLErrors)
+      })
+  },
+  async deleteComment ({ commit }, { comment, task }) {
+    await apolloClient
+      .mutate({
+        mutation: DELETE_COMMENT_MUTATION,
+        variables: {
+          id: comment.id
+        }
+      })
+      .then(() => {
+        commit('deleteComment', { comment, task })
       })
       .catch(response => {
         commit('addGraphQlError', response.graphQLErrors)
